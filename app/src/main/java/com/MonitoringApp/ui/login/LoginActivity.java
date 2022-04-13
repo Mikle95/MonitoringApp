@@ -22,6 +22,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.MonitoringApp.API.LoginController;
 import com.MonitoringApp.R;
 import com.MonitoringApp.ui.login.LoginViewModel;
 import com.MonitoringApp.ui.login.LoginViewModelFactory;
@@ -31,6 +32,13 @@ public class LoginActivity extends AppCompatActivity {
 
     private LoginViewModel loginViewModel;
     private ActivityLoginBinding binding;
+
+    private void loginOrGetToken(){
+        LoginController lc = LoginController.getInstance();
+        lc.check_login(getSharedPreferences("User_Credentials", MODE_PRIVATE));
+    }
+
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

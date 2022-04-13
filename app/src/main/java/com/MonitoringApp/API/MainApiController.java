@@ -23,15 +23,13 @@ public class MainApiController {
 
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    public void testLogin(Callback callback){
+    public static void
+
+
+    public static void sendPostRequest(String url, RequestBody body, Callback callback){
         OkHttpClient client = new OkHttpClient();
-        String url = "http://192.168.3.56:8080/api/v1/login";//"http://127.0.0.1:8080/api/v1/login";
-
-        String json = "{\"login\":\"tipikambr@yandex.ru\",\"password\":\"qwerty\"}";
-        RequestBody body = RequestBody.create(json, JSON);
-
         Request request = new Request.Builder()
-                .url(url)
+                .url(ApiPaths.login)
                 .post(body)
                 .build();
 
