@@ -2,6 +2,7 @@ package com.MonitoringApp.ui.login;
 
 import android.app.Activity;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -28,6 +29,12 @@ import com.MonitoringApp.ui.login.LoginViewModel;
 import com.MonitoringApp.ui.login.LoginViewModelFactory;
 import com.MonitoringApp.databinding.ActivityLoginBinding;
 
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
+
 public class LoginActivity extends AppCompatActivity {
 
     private LoginViewModel loginViewModel;
@@ -35,7 +42,9 @@ public class LoginActivity extends AppCompatActivity {
 
     private void loginOrGetToken(){
         LoginController lc = LoginController.getInstance();
-        lc.check_login(getSharedPreferences("User_Credentials", MODE_PRIVATE));
+        if (lc.check_login(getSharedPreferences("User_Credentials", MODE_PRIVATE),
+                getCallback()))
+            finish();
     }
 
 
@@ -43,6 +52,8 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        loginOrGetToken();
 
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -55,21 +66,23 @@ public class LoginActivity extends AppCompatActivity {
         final Button loginButton = binding.login;
         final ProgressBar loadingProgressBar = binding.loading;
 
-        loginViewModel.getLoginFormState().observe(this, new Observer<LoginFormState>() {
-            @Override
-            public void onChanged(@Nullable LoginFormState loginFormState) {
-                if (loginFormState == null) {
-                    return;
-                }
-                loginButton.setEnabled(loginFormState.isDataValid());
-                if (loginFormState.getUsernameError() != null) {
-                    usernameEditText.setError(getString(loginFormState.getUsernameError()));
-                }
-                if (loginFormState.getPasswordError() != null) {
-                    passwordEditText.setError(getString(loginFormState.getPasswordError()));
-                }
-            }
-        });
+        loginButton.setEnabled(true);
+
+//        loginViewModel.getLoginFormState().observe(this, new Observer<LoginFormState>() {
+//            @Override
+//            public void onChanged(@Nullable LoginFormState loginFormState) {
+//                if (loginFormState == null) {
+//                    return;
+//                }
+//                loginButton.setEnabled(loginFormState.isDataValid());
+//                if (loginFormState.getUsernameError() != null) {
+//                    usernameEditText.setError(getString(loginFormState.getUsernameError()));
+//                }
+//                if (loginFormState.getPasswordError() != null) {
+//                    passwordEditText.setError(getString(loginFormState.getPasswordError()));
+//                }
+//            }
+//        });
 
         loginViewModel.getLoginResult().observe(this, new Observer<LoginResult>() {
             @Override
@@ -91,45 +104,77 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        TextWatcher afterTextChangedListener = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // ignore
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // ignore
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                loginViewModel.loginDataChanged(usernameEditText.getText().toString(),
-                        passwordEditText.getText().toString());
-            }
-        };
-        usernameEditText.addTextChangedListener(afterTextChangedListener);
-        passwordEditText.addTextChangedListener(afterTextChangedListener);
-        passwordEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    loginViewModel.login(usernameEditText.getText().toString(),
-                            passwordEditText.getText().toString());
-                }
-                return false;
-            }
-        });
+//        TextWatcher afterTextChangedListener = new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//                // ignore
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//                // ignore
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//                loginViewModel.loginDataChanged(usernameEditText.getText().toString(),
+//                        passwordEditText.getText().toString());
+//            }
+//        };
+//        usernameEditText.addTextChangedListener(afterTextChangedListener);
+//        passwordEditText.addTextChangedListener(afterTextChangedListener);
+//        passwordEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+//
+//            @Override
+//            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+//                if (actionId == EditorInfo.IME_ACTION_DONE) {
+//                    loginViewModel.login(usernameEditText.getText().toString(),
+//                            passwordEditText.getText().toString());
+//                }
+//                return false;
+//            }
+//        });
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 loadingProgressBar.setVisibility(View.VISIBLE);
-                loginViewModel.login(usernameEditText.getText().toString(),
-                        passwordEditText.getText().toString());
+//                loginViewModel.login
+                        LoginController.getInstance().login(usernameEditText.getText().toString(),
+                        passwordEditText.getText().toString(), getCallback());
             }
         });
+    }
+
+    private Callback getCallback(){
+        return new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+                LoginActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        binding.password.setError(e.toString());
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                LoginActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (response.isSuccessful())
+                            finish();
+                        else {
+                            binding.loading.setVisibility(View.INVISIBLE);
+                            binding.password.setError("Wrong data");
+                        }
+                    }
+                });
+
+            }
+        };
     }
 
     private void updateUiWithUser(LoggedInUserView model) {

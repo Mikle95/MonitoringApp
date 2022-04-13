@@ -6,9 +6,13 @@ import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -21,29 +25,36 @@ public class LoginController {
     private static volatile LoginController instance;
     private SharedPreferences prefs;
     // TODO Поменять ключи
-    private final String TOKEN_KEY = "1";
-    private final String REFRESH_TOKEN_KEY = "1";
+    private static final String TOKEN_KEY = "user_token";
+    private static final String REFRESH_TOKEN_KEY = "user_refresh";
 
+    private String token = "";
+    public String getToken() {return token;}
 
-    public boolean check_login(SharedPreferences prefs){
+    public void setPrefs(SharedPreferences prefs){this.prefs = prefs;}
+
+    public boolean check_login(SharedPreferences prefs, Callback callback){
         this.prefs = prefs;
-        return check_login();
+        return check_login(callback);
     }
 
-    public boolean check_login(){
+    public boolean check_login(Callback callback){
         if (prefs == null)
                 return false;
 
-        String token = prefs.getString(TOKEN_KEY, "");
+//        String token = prefs.getString(TOKEN_KEY, "");
         String rf_token = prefs.getString(REFRESH_TOKEN_KEY, "");
-        if (token.equals("")) return false;
+        if (rf_token.equals("")) return false;
 
-        return checkAccessibility(token, rf_token);
+        refreshToken(rf_token, callback);
+        return true;
     }
 
-    private boolean checkAccessibility(String token, String rf_token){
+    private void refreshToken(String rf_token, Callback callback){
+        Map<String, String> params = new HashMap<>();
+        params.put("refresh_token", rf_token);
+        MainApiController.sendGetRequest(ApiPaths.refresh, params, makeCallback(callback));
         // TODO Проверять доступ к серверу
-        return true;
     }
 
 
@@ -53,18 +64,42 @@ public class LoginController {
         MainApiController.sendPostRequest(ApiPaths.login, body, makeCallback(callback));
     }
 
+    public void logout(){
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.remove(REFRESH_TOKEN_KEY);
+        editor.apply();
+    }
+
     private Callback makeCallback(Callback callback){
         return new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                callback.onFailure(call, e);
+                if (callback != null)
+                    callback.onFailure(call, e);
+                else
+                    e.printStackTrace();
             }
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 //Save info in database
-                System.out.println("Outer Callback");
-                callback.onResponse(call, response);
+                try {
+                    if (response.isSuccessful()) {
+                        String jsonString = response.body().string();
+                        JSONObject jObject = new JSONObject(jsonString);
+                        String token = (String) jObject.get("token");
+                        String rf_token = (String) jObject.get("refresh_token");
+
+                        SharedPreferences.Editor editor = prefs.edit();
+                        LoginController.this.token = token;
+//                        editor.putString(TOKEN_KEY, token);
+                        editor.putString(REFRESH_TOKEN_KEY, rf_token);
+                        editor.apply();
+                    }
+                } catch (Exception e) {e.printStackTrace();}
+
+                if (callback != null)
+                    callback.onResponse(call, response);
             }
         };
     }

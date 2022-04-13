@@ -4,10 +4,12 @@ import android.view.View;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -17,19 +19,38 @@ import okhttp3.Response;
 public class MainApiController {
     private static MainApiController instance;
 
+    private static final OkHttpClient client = new OkHttpClient();
+
     public MainApiController(){
         instance = this;
     }
 
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    public static void
+    public static void getUserInfo(Callback callback, String token){
+
+    }
+
+
+    public static void sendGetRequest(String url, Map<String, String> params, Callback callback){
+        HttpUrl.Builder httpBuilder = HttpUrl.parse(url).newBuilder();
+        if (params != null) {
+            for(Map.Entry<String, String> param : params.entrySet()) {
+                httpBuilder.addQueryParameter(param.getKey(),param.getValue());
+            }
+        }
+
+        Request request = new Request.Builder()
+                .url(httpBuilder.build())
+                .build();
+
+        client.newCall(request).enqueue(callback);
+    }
 
 
     public static void sendPostRequest(String url, RequestBody body, Callback callback){
-        OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
-                .url(ApiPaths.login)
+                .url(url)
                 .post(body)
                 .build();
 
