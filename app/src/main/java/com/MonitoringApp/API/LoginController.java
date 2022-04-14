@@ -28,7 +28,7 @@ public class LoginController {
     private static final String TOKEN_KEY = "user_token";
     private static final String REFRESH_TOKEN_KEY = "user_refresh";
 
-    private String token = "";
+    private volatile String token = "";
     public String getToken() {return token;}
 
     public void setPrefs(SharedPreferences prefs){this.prefs = prefs;}
@@ -52,7 +52,7 @@ public class LoginController {
 
     private void refreshToken(String rf_token, Callback callback){
         Map<String, String> params = new HashMap<>();
-        params.put("refresh_token", rf_token);
+        params.put(ApiParams.refresh_token, rf_token);
         MainApiController.sendGetRequest(ApiPaths.refresh, params, makeCallback(callback));
         // TODO Проверять доступ к серверу
     }

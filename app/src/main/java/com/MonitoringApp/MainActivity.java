@@ -2,6 +2,7 @@ package com.MonitoringApp;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -33,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         startLogin();
         setNavMenu();
     }
@@ -40,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
     private void startLogin(){
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(intent);
-        setNavMenu();
     }
 
     protected void setNavMenu(){

@@ -37,14 +37,14 @@ import okhttp3.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private LoginViewModel loginViewModel;
+//    private LoginViewModel loginViewModel;
     private ActivityLoginBinding binding;
 
-    private void loginOrGetToken(){
+    private boolean loginOrGetToken(){
         LoginController lc = LoginController.getInstance();
-        if (lc.check_login(getSharedPreferences("User_Credentials", MODE_PRIVATE),
-                getCallback()))
-            finish();
+        binding.loading.setVisibility(View.VISIBLE);
+        return lc.check_login(getSharedPreferences("User_Credentials", MODE_PRIVATE),
+                getCallback());
     }
 
 
@@ -52,14 +52,22 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        loginOrGetToken();
-
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
+
+        if (loginOrGetToken()){
+            binding.refresh.setVisibility(View.VISIBLE);
+            binding.refresh.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    loginOrGetToken();
+                }
+            });
+        }
+
         setContentView(binding.getRoot());
 
-        loginViewModel = new ViewModelProvider(this, new LoginViewModelFactory())
-                .get(LoginViewModel.class);
+//        loginViewModel = new ViewModelProvider(this, new LoginViewModelFactory())
+//                .get(LoginViewModel.class);
 
         final EditText usernameEditText = binding.username;
         final EditText passwordEditText = binding.password;
@@ -84,25 +92,25 @@ public class LoginActivity extends AppCompatActivity {
 //            }
 //        });
 
-        loginViewModel.getLoginResult().observe(this, new Observer<LoginResult>() {
-            @Override
-            public void onChanged(@Nullable LoginResult loginResult) {
-                if (loginResult == null) {
-                    return;
-                }
-                loadingProgressBar.setVisibility(View.GONE);
-                if (loginResult.getError() != null) {
-                    showLoginFailed(loginResult.getError());
-                }
-                if (loginResult.getSuccess() != null) {
-                    updateUiWithUser(loginResult.getSuccess());
-                }
-                setResult(Activity.RESULT_OK);
-
-                //Complete and destroy login activity once successful
-                finish();
-            }
-        });
+//        loginViewModel.getLoginResult().observe(this, new Observer<LoginResult>() {
+//            @Override
+//            public void onChanged(@Nullable LoginResult loginResult) {
+//                if (loginResult == null) {
+//                    return;
+//                }
+//                loadingProgressBar.setVisibility(View.GONE);
+//                if (loginResult.getError() != null) {
+//                    showLoginFailed(loginResult.getError());
+//                }
+//                if (loginResult.getSuccess() != null) {
+//                    updateUiWithUser(loginResult.getSuccess());
+//                }
+//                setResult(Activity.RESULT_OK);
+//
+//                //Complete and destroy login activity once successful
+//                finish();
+//            }
+//        });
 
 //        TextWatcher afterTextChangedListener = new TextWatcher() {
 //            @Override
@@ -154,6 +162,7 @@ public class LoginActivity extends AppCompatActivity {
                 LoginActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        binding.loading.setVisibility(View.INVISIBLE);
                         binding.password.setError(e.toString());
                     }
                 });

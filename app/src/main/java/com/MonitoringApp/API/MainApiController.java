@@ -17,7 +17,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class MainApiController {
-    private static MainApiController instance;
+    private static volatile MainApiController instance;
 
     private static final OkHttpClient client = new OkHttpClient();
 
@@ -33,12 +33,17 @@ public class MainApiController {
 
 
     public static void sendGetRequest(String url, Map<String, String> params, Callback callback){
-        HttpUrl.Builder httpBuilder = HttpUrl.parse(url).newBuilder();
+        HttpUrl.Builder httpBuilder;
+        try {
+            httpBuilder = HttpUrl.parse(url).newBuilder();
+        } catch (Exception e) {e.printStackTrace(); return;}
+
         if (params != null) {
             for(Map.Entry<String, String> param : params.entrySet()) {
                 httpBuilder.addQueryParameter(param.getKey(),param.getValue());
             }
         }
+
 
         Request request = new Request.Builder()
                 .url(httpBuilder.build())
