@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import com.MonitoringApp.API.data.Project;
+import com.MonitoringApp.API.data.Task;
 import com.MonitoringApp.R;
 import com.MonitoringApp.databinding.TaskManagerBinding;
 
@@ -62,7 +63,6 @@ public class TaskmanagerFragment extends Fragment {
 
     private static class ProjectAdapter extends ArrayAdapter<Project> {
         ArrayList<Project> items;
-        View activeView;
         public ProjectAdapter(Context context, int resource, int textViewResourceId, ArrayList items){
             super(context, resource, textViewResourceId, items);
             this.items = items;
@@ -108,6 +108,15 @@ public class TaskmanagerFragment extends Fragment {
                 row.callOnClick();
             return row;
         }
+
+        public void getTasksInProgress(ArrayAdapter<Task> adapter){
+
+        }
+
+        public void getDoneTasks(ArrayAdapter<Task> adapter){
+
+        }
+
 
         public void closeRow(View row){
             ListView listView = row.findViewById(R.id.taskList);

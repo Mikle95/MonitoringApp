@@ -42,7 +42,6 @@ public class LoginController {
         if (prefs == null)
                 return false;
 
-//        String token = prefs.getString(TOKEN_KEY, "");
         String rf_token = prefs.getString(REFRESH_TOKEN_KEY, "");
         if (rf_token.equals("")) return false;
 
@@ -54,7 +53,6 @@ public class LoginController {
         Map<String, String> params = new HashMap<>();
         params.put(ApiParams.refresh_token, rf_token);
         MainApiController.sendGetRequest(ApiPaths.refresh, params, makeCallback(callback));
-        // TODO Проверять доступ к серверу
     }
 
 

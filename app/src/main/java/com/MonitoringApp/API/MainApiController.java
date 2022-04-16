@@ -17,22 +17,15 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class MainApiController {
-    private static volatile MainApiController instance;
 
     private static final OkHttpClient client = new OkHttpClient();
 
-    public MainApiController(){
-        instance = this;
-    }
 
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    public static void getUserInfo(Callback callback, String token){
 
-    }
-
-
-    public static void sendGetRequest(String url, Map<String, String> params, Callback callback){
+    public static void sendRequest(String url, Map<String, String> params, RequestBody body,
+                                   Callback callback){
         HttpUrl.Builder httpBuilder;
         try {
             httpBuilder = HttpUrl.parse(url).newBuilder();
@@ -44,27 +37,26 @@ public class MainApiController {
             }
         }
 
-
-        Request request = new Request.Builder()
+        Request request;
+        if (body != null)
+            request = new Request.Builder()
                 .url(httpBuilder.build())
-                .build();
-
-        client.newCall(request).enqueue(callback);
-    }
-
-
-    public static void sendPostRequest(String url, RequestBody body, Callback callback){
-        Request request = new Request.Builder()
-                .url(url)
                 .post(body)
                 .build();
+        else
+            request = new Request.Builder()
+                    .url(httpBuilder.build())
+                    .build();
 
         client.newCall(request).enqueue(callback);
     }
 
-    public static MainApiController getInstance() {
-        if (instance == null)
-            instance = new MainApiController();
-        return instance;
+    public static void sendGetRequest(String url, Map<String, String> params, Callback callback){
+        sendRequest(url, params, null, callback);
     }
+
+    public static void sendPostRequest(String url, RequestBody body, Callback callback){
+        sendRequest(url, null, body, callback);
+    }
+
 }
