@@ -14,4 +14,6 @@
     <string name="invalid_password">Ошибка</string>
     <string name="login_failed">"Login failed"</string>
     <string name="action_add">"Добавить"</string>
+    <string name="type_in_progress">В процессе</string>
+    <string name="type_done">Готовые</string>
 </resources>
