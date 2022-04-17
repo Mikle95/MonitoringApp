@@ -10,4 +10,9 @@ public class Project {
     public String project_company_name;
 
     public List<Task> tasks;
+
+    @Override
+    public String toString() {
+        return project_name + "\n" + project_creator_login;
+    }
 }
