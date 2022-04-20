@@ -66,11 +66,15 @@ public class TasksActivity extends AppCompatActivity {
 
     public void refresh(){
         binding.progressBar3.setVisibility(View.VISIBLE);
+        int i = binding.tabLayout.getSelectedTabPosition();
         TasksApiController.getInstance().getTasks(proj_name, proj_login, (response, isSuccessful) -> {
             if (!isSuccessful)
                 System.out.println(response);
             else
-                runOnUiThread(() -> fillLists(response));
+                runOnUiThread(() -> {
+                    fillLists(response);
+                    binding.tabLayout.selectTab(binding.tabLayout.getTabAt(i));
+                });
         });
 
 

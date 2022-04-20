@@ -17,4 +17,14 @@
     <string name="type_in_progress">В процессе</string>
     <string name="type_done">Готовые</string>
     <string name="title_project_view">Проекты</string>
+    <string name="accept">Подтвердить</string>
+    <string name="no_worker">Сотрудник не назначен</string>
+    <string name="worker">Ответственный</string>
+    <string name="delete">Удалить </string>
+    <string name="change_description">Изменить описание</string>
+    <string name="change_task_name">Изменить название</string>
+    <string name="change_task_worker">Назначить ответственного</string>
+    <string name="alert_delete">Удалять может только создатель</string>
+    <string name="alert_change_name">Менять название может только создатель</string>
+    <string name="alert_change_worker">Назначать ответственного может только создатель</string>
 </resources>

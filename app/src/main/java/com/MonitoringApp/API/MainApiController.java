@@ -102,8 +102,10 @@ public class MainApiController {
                 if (callback == null)
                     return;
 
-                if (!response.isSuccessful())
+                if (!response.isSuccessful()) {
                     callback.execute(response.message(), false);
+                    return;
+                }
 
                 try (ResponseBody body = response.body()) {
                     callback.execute(body.string(), true);

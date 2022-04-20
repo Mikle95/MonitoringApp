@@ -2,10 +2,9 @@ package com.MonitoringApp.ui.taskmanager.Task;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.graphics.Color;
-import android.os.CountDownTimer;
+import android.content.res.Resources;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
@@ -16,10 +15,8 @@ import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
-
-import androidx.annotation.UiContext;
 
 import com.MonitoringApp.API.IResponseCallback;
 import com.MonitoringApp.API.LoginController;
@@ -30,14 +27,18 @@ import com.MonitoringApp.databinding.TaskItemBinding;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 
 // Список тасков
 public class TaskAdapter  extends ArrayAdapter<Task> {
     ArrayList<Task> items;
+    Resources res;
     public TaskAdapter(Context context, int resource, int textViewResourceId, ArrayList items){
         super(context, resource, textViewResourceId, items);
         this.items = items;
+        res = getContext().getResources();
     }
 
     @Override
@@ -63,15 +64,25 @@ public class TaskAdapter  extends ArrayAdapter<Task> {
     // Заполнение полей строки
     public void prepareRow(TaskItemBinding binding, Task item){
         binding.editingLayout.setVisibility(View.GONE);
+
         binding.taskName.setText("  " + item.toString());
+        binding.taskName.setOnLongClickListener(taskNameDialog(item));
+        binding.taskName.setOnClickListener(view -> binding.getRoot().callOnClick());
+
         binding.taskStartTime.setText(Task.dateFormat.format(item.getStart_time()));
         binding.taskEndTime.setText(Task.dateFormat.format(item.getEnd_time()));
 
         // Описание
         binding.projectCreator.setText(item.creator_login);
+        binding.projectCreator.setOnClickListener(descriptionDialog(item));
         if (item.task_description != null)
             binding.taskDescriprion.setText(item.task_description);
-        binding.taskDescriprion.setOnClickListener(descriptionDialog(binding, item));
+        binding.taskDescriprion.setOnClickListener(descriptionDialog(item));
+
+        binding.workerLogin.setText(item.worker_login != null ?
+                res.getString(R.string.worker) + ": " + item.worker_login :
+                res.getString(R.string.no_worker));
+        binding.workerLogin.setOnClickListener(workerLoginDialog(item));
 
         // Выпадающий список
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(getContext(),
@@ -111,41 +122,98 @@ public class TaskAdapter  extends ArrayAdapter<Task> {
             }
         });
 
-        binding.deleteTask.setOnClickListener(view -> deleteDialog(binding, item));
+        binding.deleteTask.setOnClickListener(view -> deleteDialog(item));
+        binding.taskStartTime.setOnLongClickListener(changeTime((response, isSuccessful) -> {
+            item.start_time = response;
+            item.update((response1, isSuccessful1) -> {
+                    ((TasksActivity)getContext()).refresh();
+            });
+        }));
+        binding.taskEndTime.setOnLongClickListener(changeTime((response, isSuccessful) -> {
+            item.end_time = response;
+            item.update();
+        }));
+        binding.taskStartTime.setOnClickListener(view -> binding.getRoot().callOnClick());
+        binding.taskEndTime.setOnClickListener(view -> binding.getRoot().callOnClick());
     }
 
-    // Редактирование описания
-    public View.OnClickListener descriptionDialog(TaskItemBinding binding, Task item){
-        return view -> {
-            AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
-            alertDialog.setTitle("Описание");
+    public View.OnLongClickListener changeTime(IResponseCallback action){
+        return new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                Calendar cal = Calendar.getInstance();
+//                cal.setTimeZone(TimeZone.getDefault());
 
-            final EditText input = new EditText(getContext());
-            input.setText(item.task_description);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.MATCH_PARENT);
-            input.setLayoutParams(lp);
-            alertDialog.setView(input);
+                TimePickerDialog.OnTimeSetListener timeSetListener = new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker timePicker, int i, int i1) {
+                        cal.set(Calendar.HOUR, i);
+                        cal.set(Calendar.MINUTE, i1);
+                        action.execute(Task.getTimeString(cal.getTime()), true);
+                    }
+                };
 
-            alertDialog.setPositiveButton("Подтвердить", (dialogInterface, i) -> {
-                item.task_description = input.getText().toString();
-                binding.taskDescriprion.setText(item.task_description);
-                item.update();
-            });
-            alertDialog.show();
+                DatePickerDialog.OnDateSetListener listener = new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
+                        cal.set(Calendar.YEAR, i);
+                        cal.set(Calendar.MONTH, i1);
+                        cal.set(Calendar.DAY_OF_MONTH, i2);
+                        new TimePickerDialog(getContext(), timeSetListener, cal.get(Calendar.HOUR),
+                                cal.get(Calendar.MINUTE), true).show();
+                    }
+                };
+
+                new DatePickerDialog(getContext(), listener, cal.get(Calendar.YEAR),
+                        cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).show();
+                return false;
+            }
         };
     }
 
-    public void deleteDialog(TaskItemBinding binding, Task item){
-//        if (!item.creator_login.equals(LoginController.getInstance().getUsername())){
-//            Toast.makeText(getContext(), "Удалять может только создатель", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
+    public View.OnClickListener workerLoginDialog(Task item) {
+        return view -> {
+            if (!item.creator_login.equals(LoginController.getInstance().getUsername())){
+                Toast.makeText(getContext(), res.getString(R.string.alert_change_worker), Toast.LENGTH_SHORT).show();
+            }
+            openDialogEditText(res.getString(R.string.change_task_worker), item.worker_login, (response, isSuccessful) -> {
+                item.worker_login = response;
+                item.update();
+            });
+        };
+    }
 
+    public View.OnLongClickListener taskNameDialog(Task item){
+        return view -> {
+            if (!item.creator_login.equals(LoginController.getInstance().getUsername())){
+                Toast.makeText(getContext(), res.getString(R.string.alert_change_name), Toast.LENGTH_SHORT).show();
+                return false;
+            }
+            openDialogEditText(res.getString(R.string.change_task_name), item.task_name, (response, isSuccessful) -> {
+                item.task_name = response;
+                item.update();
+            });
+            return false;
+        };
+    }
+
+    // Редактирование описания
+    public View.OnClickListener descriptionDialog(Task item){
+        return view -> openDialogEditText(res.getString(R.string.change_description),
+                item.task_description, (response, isSuccessful) -> {
+            item.task_description = response;
+            item.update();
+        });
+    }
+
+    public void deleteDialog(Task item){
+        if (!item.creator_login.equals(LoginController.getInstance().getUsername())){
+            Toast.makeText(getContext(), res.getString(R.string.alert_delete), Toast.LENGTH_SHORT).show();
+            return;
+        }
         AlertDialog.Builder dialog = new
                 AlertDialog.Builder(getContext());
-        dialog.setMessage("Delete " + item.task_name + "?");
+        dialog.setMessage(res.getString(R.string.delete) + item.task_name + "?");
         dialog.setPositiveButton("Yes",
                 (dialog12, which) -> item.delete(
                         (response, isSuccessful) -> new Handler(Looper.getMainLooper()).post(() -> {
@@ -159,5 +227,24 @@ public class TaskAdapter  extends ArrayAdapter<Task> {
         dialog.setNegativeButton("No", (dialog1, which) -> dialog1.cancel());
         AlertDialog alertDialog = dialog.create();
         alertDialog.show();
+    }
+
+    public void openDialogEditText(String title, String text, IResponseCallback action){
+
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
+        alertDialog.setTitle(title);
+
+        final EditText input = new EditText(getContext());
+        input.setText(text);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        input.setLayoutParams(lp);
+        alertDialog.setView(input);
+
+        alertDialog.setPositiveButton(res.getString(R.string.accept),
+                (dialogInterface, i) -> action.execute(input.getText().toString(), true));
+        alertDialog.show();
+
     }
 }

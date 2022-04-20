@@ -16,7 +16,9 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import okhttp3.Callback;
@@ -35,7 +37,8 @@ public class Task {
     public String worker_login;
 
     @SuppressLint("SimpleDateFormat")
-    private static final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+    private static final DateFormat df =
+            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
     @SuppressLint("SimpleDateFormat")
     public static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd\nHH:mm");
 
@@ -45,6 +48,12 @@ public class Task {
 
     public Timestamp getStart_time(){
         return getTimestamp(start_time);
+    }
+
+    public static String getTimeString(Date date){
+        String str =  df.format(date);
+        System.out.println(str);
+        return str;
     }
 
     private static Timestamp getTimestamp(String date){
