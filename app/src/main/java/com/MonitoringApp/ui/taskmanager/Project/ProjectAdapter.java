@@ -1,4 +1,4 @@
-package com.MonitoringApp.ui.taskmanager;
+package com.MonitoringApp.ui.taskmanager.Project;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,17 +15,14 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.MonitoringApp.API.ApiJsonFormats;
 import com.MonitoringApp.API.TasksApiController;
 import com.MonitoringApp.API.data.Project;
-import com.MonitoringApp.API.data.Task;
 import com.MonitoringApp.R;
 import com.MonitoringApp.ui.taskmanager.Task.TaskAdapter;
 import com.MonitoringApp.ui.taskmanager.Task.TasksActivity;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -47,7 +44,7 @@ public class ProjectAdapter extends ArrayAdapter<Project> {
         final Project item = getItem(position);
 
 
-        TextView text = row.findViewById(R.id.textView2);
+        TextView text = row.findViewById(R.id.task_name);
         text.setText(item.toString());
 
         ListView listView = row.findViewById(R.id.taskList);
@@ -69,7 +66,7 @@ public class ProjectAdapter extends ArrayAdapter<Project> {
 
                 pb.setVisibility(View.VISIBLE);
                 TasksApiController.getInstance().getTasks(item.project_name,
-                        item.project_creator_login, getTaskCallback(pb));
+                        item.project_creator_login, getTaskCallback(pb, item));
             }
         });
 
@@ -78,7 +75,7 @@ public class ProjectAdapter extends ArrayAdapter<Project> {
         return row;
     }
 
-    public Callback getTaskCallback(ProgressBar pb) {
+    public Callback getTaskCallback(ProgressBar pb, Project item) {
         return new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
@@ -101,6 +98,8 @@ public class ProjectAdapter extends ArrayAdapter<Project> {
                             try {
                                 Intent intent = new Intent(getContext(), TasksActivity.class);
                                 intent.putExtra("tasks", response.body().string());
+                                intent.putExtra("pname", item.project_name);
+                                intent.putExtra("plogin", item.project_creator_login);
                                 getContext().startActivity(intent);
                             } catch (Exception e) {
                                 e.printStackTrace();

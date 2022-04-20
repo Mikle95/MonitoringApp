@@ -7,7 +7,7 @@
     <string name="prompt_username">Username</string>
     <string name="prompt_password">Password</string>
     <string name="action_sign_in">Вход</string>
-    <string name="action_sign_in_short">Вход</string>
+    <string name="action_logout">Выход</string>
     <string name="action_refresh">Обновить</string>
     <string name="welcome">"Добро пожаловать!"</string>
     <string name="invalid_username">Ошибка в логине</string>
@@ -16,6 +16,5 @@
     <string name="action_add">"Добавить"</string>
     <string name="type_in_progress">В процессе</string>
     <string name="type_done">Готовые</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_project_view">Проекты</string>
 </resources>

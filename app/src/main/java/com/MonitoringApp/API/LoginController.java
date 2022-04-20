@@ -2,9 +2,13 @@ package com.MonitoringApp.API;
 
 import static com.MonitoringApp.API.MainApiController.JSON;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
+
+import com.MonitoringApp.ui.login.LoginActivity;
 
 import org.json.JSONObject;
 
@@ -25,10 +29,12 @@ public class LoginController {
     private static volatile LoginController instance;
     private SharedPreferences prefs;
     // TODO Поменять ключи
-    private static final String TOKEN_KEY = "user_token";
+    private static final String Login_KEY = "login_token";
     private static final String REFRESH_TOKEN_KEY = "user_refresh";
 
     private volatile String token = "";
+    private volatile String login = "";
+    public String getLogin() {return login;}
     public String getToken() {return token;}
 
     public void setPrefs(SharedPreferences prefs){this.prefs = prefs;}
@@ -43,6 +49,7 @@ public class LoginController {
                 return false;
 
         String rf_token = prefs.getString(REFRESH_TOKEN_KEY, "");
+        login = prefs.getString(REFRESH_TOKEN_KEY, "");
         if (rf_token.equals("")) return false;
 
         refreshToken(rf_token, callback);
@@ -57,15 +64,20 @@ public class LoginController {
 
 
     public void login(String login, String password, Callback callback){
+        this.login = login;
         String json = String.format(ApiJsonFormats.login, login, password);
         RequestBody body = RequestBody.create(json, JSON);
         MainApiController.sendPostRequest(ApiPaths.login, body, makeCallback(callback));
     }
 
-    public void logout(){
+    public void logout(Context context){
         SharedPreferences.Editor editor = prefs.edit();
         editor.remove(REFRESH_TOKEN_KEY);
         editor.apply();
+        token = "";
+
+        Intent intent = new Intent(context, LoginActivity.class);
+        context.startActivity(intent);
     }
 
     private Callback makeCallback(Callback callback){
@@ -90,7 +102,7 @@ public class LoginController {
 
                         SharedPreferences.Editor editor = prefs.edit();
                         LoginController.this.token = token;
-//                        editor.putString(TOKEN_KEY, token);
+                        editor.putString(Login_KEY, LoginController.this.login);
                         editor.putString(REFRESH_TOKEN_KEY, rf_token);
                         editor.apply();
                     }

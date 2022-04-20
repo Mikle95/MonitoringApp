@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.taskmanager.ProjectViewFragment">
+    tools:context=".ui.taskmanager.Project.ProjectViewFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="fill_parent"
@@ -20,6 +20,7 @@
             android:id="@+id/refresh_project"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
             android:text="@string/action_refresh"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -44,6 +45,18 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/refresh_project" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:text="@string/title_project_view"
+            app:layout_constraintBottom_toTopOf="@+id/listView"
+            app:layout_constraintEnd_toStartOf="@+id/refresh_project"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

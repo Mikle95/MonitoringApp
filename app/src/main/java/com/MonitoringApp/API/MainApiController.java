@@ -3,6 +3,8 @@ package com.MonitoringApp.API;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import java.io.IOException;
 import java.util.Map;
 
@@ -47,6 +49,20 @@ public class MainApiController {
             request = new Request.Builder()
                     .url(httpBuilder.build())
                     .build();
+
+        if (callback == null){
+            callback = new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    e.printStackTrace();
+                }
+
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    System.out.println(response.toString());
+                }
+            };
+        }
 
         client.newCall(request).enqueue(callback);
     }

@@ -28,28 +28,35 @@ public class LoginActivity extends AppCompatActivity {
     private ActivityLoginBinding binding;
 
     private boolean loginOrGetToken(){
-        LoginController lc = LoginController.getInstance();
         binding.loading.setVisibility(View.VISIBLE);
+        LoginController lc = LoginController.getInstance();
         return lc.check_login(getSharedPreferences("User_Credentials", MODE_PRIVATE),
                 getCallback());
     }
 
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (LoginController.getInstance().getToken().equals("")){
+            finishAffinity();
+            System.out.println("Unauthorized cancel login activity");
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
 
+
         if (loginOrGetToken()){
             binding.refresh.setVisibility(View.VISIBLE);
-            binding.refresh.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    loginOrGetToken();
-                }
-            });
+            binding.login.setText(LoginController.getInstance().getLogin());
+            binding.refresh.setOnClickListener(view -> loginOrGetToken());
         }
+        else
+            binding.loading.setVisibility(View.INVISIBLE);
 
         setContentView(binding.getRoot());
 
@@ -61,14 +68,9 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setEnabled(true);
 
 
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loadingProgressBar.setVisibility(View.VISIBLE);
-//                loginViewModel.login
-                        LoginController.getInstance().login(usernameEditText.getText().toString(),
-                        passwordEditText.getText().toString(), getCallback());
-            }
+        loginButton.setOnClickListener(v -> {
+            loadingProgressBar.setVisibility(View.VISIBLE);
+            LoginController.getInstance().login(usernameEditText.getText().toString(), passwordEditText.getText().toString(), getCallback());
         });
     }
 
@@ -77,29 +79,22 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 e.printStackTrace();
-                LoginActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        binding.loading.setVisibility(View.INVISIBLE);
-                        binding.password.setError(e.toString());
-                    }
+                LoginActivity.this.runOnUiThread(() -> {
+                    binding.loading.setVisibility(View.INVISIBLE);
+                    binding.password.setError(e.toString());
                 });
             }
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                LoginActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (response.isSuccessful())
-                            finish();
-                        else {
-                            binding.loading.setVisibility(View.INVISIBLE);
-                            binding.password.setError("Wrong data");
-                        }
+                LoginActivity.this.runOnUiThread(() -> {
+                    if (response.isSuccessful())
+                        finish();
+                    else {
+                        binding.loading.setVisibility(View.INVISIBLE);
+                        binding.password.setError("Wrong data");
                     }
                 });
-
             }
         };
     }

@@ -1,4 +1,4 @@
-package com.MonitoringApp.ui.taskmanager;
+package com.MonitoringApp.ui.taskmanager.Project;
 
 
 import android.os.Bundle;
@@ -68,7 +68,7 @@ public class ProjectViewFragment extends Fragment {
                                 Project[] projs = ApiJsonFormats.parseGson(json, Project[].class);
                                 adapter = new ProjectAdapter(getContext(),
                                         android.R.layout.simple_list_item_1,
-                                        R.id.textView2, new ArrayList<>(Arrays.asList(projs)));
+                                        R.id.task_name, new ArrayList<>(Arrays.asList(projs)));
                                 binding.listView.setAdapter(adapter);
                                 return;
                             } catch (Exception e) {
