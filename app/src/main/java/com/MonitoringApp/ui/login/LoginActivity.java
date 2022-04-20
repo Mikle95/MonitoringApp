@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.MonitoringApp.API.IResponseCallback;
 import com.MonitoringApp.API.LoginController;
 import com.MonitoringApp.R;
 import com.MonitoringApp.databinding.ActivityLoginBinding;
@@ -52,11 +53,12 @@ public class LoginActivity extends AppCompatActivity {
 
         if (loginOrGetToken()){
             binding.refresh.setVisibility(View.VISIBLE);
-            binding.login.setText(LoginController.getInstance().getLogin());
             binding.refresh.setOnClickListener(view -> loginOrGetToken());
         }
         else
             binding.loading.setVisibility(View.INVISIBLE);
+
+        binding.username.setText(LoginController.getInstance().getUsername());
 
         setContentView(binding.getRoot());
 
@@ -74,27 +76,20 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private Callback getCallback(){
-        return new Callback() {
+    private IResponseCallback getCallback() {
+        return new IResponseCallback() {
             @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                e.printStackTrace();
-                LoginActivity.this.runOnUiThread(() -> {
-                    binding.loading.setVisibility(View.INVISIBLE);
-                    binding.password.setError(e.toString());
-                });
-            }
-
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                LoginActivity.this.runOnUiThread(() -> {
-                    if (response.isSuccessful())
-                        finish();
-                    else {
+            public void execute(String response, boolean isSuccessful) {
+                if (!isSuccessful) {
+                    System.out.println(response);
+                    LoginActivity.this.runOnUiThread(() -> {
                         binding.loading.setVisibility(View.INVISIBLE);
-                        binding.password.setError("Wrong data");
-                    }
-                });
+                        binding.password.setError(response);
+                    });
+                }
+                else {
+                    finish();
+                }
             }
         };
     }

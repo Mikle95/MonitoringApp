@@ -5,12 +5,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.MonitoringApp.API.ApiJsonFormats;
+import com.MonitoringApp.API.IResponseCallback;
 import com.MonitoringApp.API.TasksApiController;
 import com.MonitoringApp.API.data.Task;
 import com.MonitoringApp.databinding.TaskViewBinding;
@@ -42,25 +44,33 @@ public class TasksActivity extends AppCompatActivity {
         proj_login = intent.getStringExtra("plogin");
         fillLists(intent.getStringExtra("tasks"));
         binding.refreshTasks.setOnClickListener(view -> refresh());
+
+        binding.addNewTask.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Task.create(proj_name, (response, isSuccessful) -> runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (isSuccessful)
+                            refresh();
+                        else
+                            Toast.makeText(TasksActivity.this, response, Toast.LENGTH_SHORT)
+                                    .show();
+                    }
+                }));
+
+//                binding.tabLayout.selectTab(binding.tabLayout.getTabAt(0));
+            }
+        });
     }
 
     public void refresh(){
         binding.progressBar3.setVisibility(View.VISIBLE);
-        TasksApiController.getInstance().getTasks(proj_name, proj_login, new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    try {
-                        if (response.isSuccessful())
-                            fillLists(response.body().string());
-                    }catch (Exception e) {e.printStackTrace();}
-                });
-            }
+        TasksApiController.getInstance().getTasks(proj_name, proj_login, (response, isSuccessful) -> {
+            if (!isSuccessful)
+                System.out.println(response);
+            else
+                runOnUiThread(() -> fillLists(response));
         });
 
 
@@ -69,10 +79,8 @@ public class TasksActivity extends AppCompatActivity {
     public void fillLists(String json){
         try {
             Task[] tasks = ApiJsonFormats.parseGson(json, Task[].class);
-            if (tasks.length > 0) {
-                buildTabs(new ArrayList<>(Arrays.asList(tasks)));
-                return;
-            }
+            buildTabs(new ArrayList<>(Arrays.asList(tasks)));
+            return;
         }catch (Exception e){ e.printStackTrace(); }
         finish();
     }

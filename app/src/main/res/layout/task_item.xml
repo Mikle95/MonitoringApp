@@ -82,7 +82,7 @@
             android:layout_marginEnd="16dp"
             android:text="TextView"
             android:textAlignment="textStart"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/delete_task"
             app:layout_constraintStart_toEndOf="@+id/task_start_time"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth="match_constraint" />
@@ -129,6 +129,16 @@
             app:layout_constraintTop_toTopOf="parent">
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <ImageView
+            android:id="@+id/delete_task"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintBottom_toBottomOf="@+id/task_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/task_name"
+            app:srcCompat="@android:drawable/btn_dialog" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

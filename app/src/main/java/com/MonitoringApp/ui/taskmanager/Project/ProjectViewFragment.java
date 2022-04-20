@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.MonitoringApp.API.ApiJsonFormats;
+import com.MonitoringApp.API.IResponseCallback;
 import com.MonitoringApp.API.TasksApiController;
 import com.MonitoringApp.API.data.Project;
 import com.MonitoringApp.R;
@@ -50,36 +51,22 @@ public class ProjectViewFragment extends Fragment {
     }
 
 
-    public Callback getProjectCallback() {
-        return new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                e.printStackTrace();
+    public IResponseCallback getProjectCallback() {
+        return (response, isSuccessful) -> new Handler(Looper.getMainLooper()).post(() -> {
+            if (isSuccessful) {
+                try {
+                    Project[] projs = ApiJsonFormats.parseGson(response, Project[].class);
+                    adapter = new ProjectAdapter(getContext(),
+                            android.R.layout.simple_list_item_1,
+                            R.id.task_name, new ArrayList<>(Arrays.asList(projs)));
+                    binding.listView.setAdapter(adapter);
+                    return;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (response.isSuccessful()) {
-                            try {
-                                String json = response.body().string();
-                                Project[] projs = ApiJsonFormats.parseGson(json, Project[].class);
-                                adapter = new ProjectAdapter(getContext(),
-                                        android.R.layout.simple_list_item_1,
-                                        R.id.task_name, new ArrayList<>(Arrays.asList(projs)));
-                                binding.listView.setAdapter(adapter);
-                                return;
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            System.out.println(response);
-                        }
-                    }
-                });
-            }
-        };
+            System.out.println(response);
+        });
     }
 
     @Override

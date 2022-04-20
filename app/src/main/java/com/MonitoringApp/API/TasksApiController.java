@@ -19,13 +19,13 @@ public class TasksApiController {
         return instance;
     }
 
-    public void getProjects(Callback callback){
+    public void getProjects(IResponseCallback callback){
         Map<String, String> params = new HashMap<>();
         params.put(ApiParams.token, LoginController.getInstance().getToken());
         MainApiController.sendGetRequest(ApiPaths.get_project, params, callback);
     }
 
-    public void getTasks(String pname, String creator_login, Callback callback){
+    public void getTasks(String pname, String creator_login, IResponseCallback callback){
         Map<String, String> params = new HashMap<>();
         params.put(ApiParams.token, LoginController.getInstance().getToken());
         String json_body = String.format(ApiJsonFormats.task, pname, creator_login);

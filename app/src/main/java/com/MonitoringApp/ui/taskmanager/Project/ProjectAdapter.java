@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.MonitoringApp.API.IResponseCallback;
 import com.MonitoringApp.API.TasksApiController;
 import com.MonitoringApp.API.data.Project;
 import com.MonitoringApp.R;
@@ -75,39 +76,23 @@ public class ProjectAdapter extends ArrayAdapter<Project> {
         return row;
     }
 
-    public Callback getTaskCallback(ProgressBar pb, Project item) {
-        return new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        pb.setVisibility(View.INVISIBLE);
-                        e.printStackTrace();
-                    }
-                });
-            }
-
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        pb.setVisibility(View.INVISIBLE);
-                        if (response.isSuccessful())
-                            try {
-                                Intent intent = new Intent(getContext(), TasksActivity.class);
-                                intent.putExtra("tasks", response.body().string());
-                                intent.putExtra("pname", item.project_name);
-                                intent.putExtra("plogin", item.project_creator_login);
-                                getContext().startActivity(intent);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                    }
-                });
-            }
+    public IResponseCallback getTaskCallback(ProgressBar pb, Project item) {
+        return (response, isSuccessful) -> {
+            pb.setVisibility(View.INVISIBLE);
+            if (!isSuccessful)
+                System.out.println(response);
+            else
+                try {
+                    Intent intent = new Intent(getContext(), TasksActivity.class);
+                    intent.putExtra("tasks", response);
+                    intent.putExtra("pname", item.project_name);
+                    intent.putExtra("plogin", item.project_creator_login);
+                    getContext().startActivity(intent);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
         };
+
     }
 
     public void closeRow(View row){
