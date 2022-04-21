@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 
 import com.MonitoringApp.API.data.Task;
 import com.MonitoringApp.R;
-import com.MonitoringApp.databinding.FragmentTaskBinding;
+import com.MonitoringApp.databinding.FragmentListBinding;
 
 import java.util.ArrayList;
 
@@ -18,7 +18,7 @@ public class TaskFragment extends Fragment {
 
     private String filter = "";
     private ArrayList<Task> items;
-    private FragmentTaskBinding binding;
+    private FragmentListBinding binding;
     private TaskAdapter adapter;
 
     public TaskFragment() {
@@ -38,12 +38,21 @@ public class TaskFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        binding = FragmentTaskBinding.inflate(getLayoutInflater());
+        binding = FragmentListBinding.inflate(getLayoutInflater());
         View root = binding.getRoot();
         adapter = new TaskAdapter(getContext(), android.R.layout.simple_list_item_1,
                 R.id.task_name, items);
         binding.taskList2.setAdapter(adapter);
         // Inflate the layout for this fragment
         return root;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        binding = null;
+        items = null;
+        adapter = null;
+        filter = null;
     }
 }

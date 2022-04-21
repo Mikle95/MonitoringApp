@@ -22,12 +22,7 @@ import com.MonitoringApp.R;
 import com.MonitoringApp.ui.taskmanager.Task.TaskAdapter;
 import com.MonitoringApp.ui.taskmanager.Task.TasksActivity;
 
-import java.io.IOException;
 import java.util.ArrayList;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
 
 public class ProjectAdapter extends ArrayAdapter<Project> {
     ArrayList<Project> items;
@@ -48,27 +43,12 @@ public class ProjectAdapter extends ArrayAdapter<Project> {
         TextView text = row.findViewById(R.id.task_name);
         text.setText(item.toString());
 
-        ListView listView = row.findViewById(R.id.taskList);
-        Button btn1 = row.findViewById(R.id.button2);
-        Button btn2 = row.findViewById(R.id.button3);
         ProgressBar pb = row.findViewById(R.id.progressBar);
 
-        row.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-//                if (btn1.getVisibility() != View.GONE) {
-//                    btn1.setVisibility(View.GONE);
-//                    btn2.setVisibility(View.GONE);
-//                    closeRow(row);
-//                    return;
-//                }
-//                btn1.setVisibility(View.VISIBLE);
-//                btn2.setVisibility(View.VISIBLE);
-
-                pb.setVisibility(View.VISIBLE);
-                TasksApiController.getInstance().getTasks(item.project_name,
-                        item.project_creator_login, getTaskCallback(pb, item));
-            }
+        row.setOnClickListener(view -> {
+            pb.setVisibility(View.VISIBLE);
+            TasksApiController.getInstance().getTasks(item.project_name,
+                    item.project_creator_login, getTaskCallback(pb, item.project_name, item.project_creator_login));
         });
 
         if (items.stream().count() == 1)
@@ -76,7 +56,7 @@ public class ProjectAdapter extends ArrayAdapter<Project> {
         return row;
     }
 
-    public IResponseCallback getTaskCallback(ProgressBar pb, Project item) {
+    public IResponseCallback getTaskCallback(ProgressBar pb, String pname, String username) {
         return (response, isSuccessful) -> {
             pb.setVisibility(View.INVISIBLE);
             if (!isSuccessful)
@@ -85,8 +65,8 @@ public class ProjectAdapter extends ArrayAdapter<Project> {
                 try {
                     Intent intent = new Intent(getContext(), TasksActivity.class);
                     intent.putExtra("tasks", response);
-                    intent.putExtra("pname", item.project_name);
-                    intent.putExtra("plogin", item.project_creator_login);
+                    intent.putExtra("pname", pname);
+                    intent.putExtra("plogin", username);
                     getContext().startActivity(intent);
                 } catch (Exception e) {
                     e.printStackTrace();

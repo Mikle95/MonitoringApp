@@ -7,7 +7,9 @@ public class ApiPaths {
     public static final String refresh = host + "api/v1/refreshToken";
     public static final String get_project = host + "api/v1/all/project";
     public static final String get_project_tasks = host + "api/v1/project/task";
+    public static final String get_all_tasks = host + "api/v1/my/task";
     public static final String update_task = host + "api/v1/update/task";
     public static final String delete_task = host + "api/v1/delete/task";
     public static final String create_task = host + "api/v1/create/task";
+
 }

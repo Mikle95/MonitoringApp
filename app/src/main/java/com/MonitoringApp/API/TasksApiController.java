@@ -33,6 +33,12 @@ public class TasksApiController {
         MainApiController.sendRequest(ApiPaths.get_project_tasks, params, rb, callback);
     }
 
+    public void getAllTasks(IResponseCallback callback){
+        Map<String, String> params = new HashMap<>();
+        params.put(ApiParams.token, LoginController.getInstance().getToken());
+        MainApiController.sendGetRequest(ApiPaths.get_all_tasks, params, callback);
+    }
+
     private TasksApiController(){
 
     }

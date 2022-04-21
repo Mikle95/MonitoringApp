@@ -18,12 +18,13 @@
 
         <Button
             android:id="@+id/refresh_project"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_marginEnd="16dp"
-            android:text="@string/action_refresh"
+            android:background="@android:drawable/ic_popup_sync"
+            app:layout_constraintBottom_toBottomOf="@+id/all_tasks"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@+id/all_tasks" />
 
         <Button
             android:id="@+id/add_task"
@@ -44,18 +45,28 @@
             app:layout_constraintBottom_toTopOf="@+id/add_task"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/refresh_project" />
+            app:layout_constraintTop_toBottomOf="@+id/all_tasks" />
 
         <TextView
             android:id="@+id/textView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:layout_marginEnd="32dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
             android:text="@string/title_project_view"
-            app:layout_constraintBottom_toTopOf="@+id/listView"
-            app:layout_constraintEnd_toStartOf="@+id/refresh_project"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="@+id/all_tasks"
+            app:layout_constraintEnd_toStartOf="@+id/all_tasks"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/all_tasks" />
+
+        <Button
+            android:id="@+id/all_tasks"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="@string/my_tasks"
+            app:layout_constraintEnd_toStartOf="@+id/refresh_project"
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

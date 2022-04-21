@@ -15,6 +15,7 @@ import com.MonitoringApp.API.ApiJsonFormats;
 import com.MonitoringApp.API.IResponseCallback;
 import com.MonitoringApp.API.TasksApiController;
 import com.MonitoringApp.API.data.Task;
+import com.MonitoringApp.R;
 import com.MonitoringApp.databinding.TaskViewBinding;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -48,18 +49,24 @@ public class TasksActivity extends AppCompatActivity {
         binding.addNewTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Task.create(proj_name, (response, isSuccessful) -> runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (isSuccessful)
-                            refresh();
-                        else
-                            Toast.makeText(TasksActivity.this, response, Toast.LENGTH_SHORT)
-                                    .show();
-                    }
-                }));
+                IResponseCallback callback = (response, isSuccessful) -> runOnUiThread(() -> {
+                    if (isSuccessful)
+                        refresh();
+                    else
+                        Toast.makeText(TasksActivity.this, response, Toast.LENGTH_SHORT)
+                                .show();
+                });
 
-//                binding.tabLayout.selectTab(binding.tabLayout.getTabAt(0));
+                String pname = proj_name;
+                if (proj_login == null){
+                    // TODO Переписать (Подгружать названия проектов)
+                    TaskAdapter.openDialogEditText(TasksActivity.this,
+                            getResources().getString(R.string.input_pname), "", callback);
+                }
+                else
+                    Task.create(pname, callback);
+
+
             }
         });
     }
@@ -67,15 +74,20 @@ public class TasksActivity extends AppCompatActivity {
     public void refresh(){
         binding.progressBar3.setVisibility(View.VISIBLE);
         int i = binding.tabLayout.getSelectedTabPosition();
-        TasksApiController.getInstance().getTasks(proj_name, proj_login, (response, isSuccessful) -> {
-            if (!isSuccessful)
-                System.out.println(response);
-            else
-                runOnUiThread(() -> {
+        IResponseCallback callback = (response, isSuccessful) -> {
+            runOnUiThread(() -> {
+                if (!isSuccessful)
+                    Toast.makeText(TasksActivity.this, response, Toast.LENGTH_SHORT).show();
+                else
                     fillLists(response);
-                    binding.tabLayout.selectTab(binding.tabLayout.getTabAt(i));
-                });
-        });
+                binding.tabLayout.selectTab(binding.tabLayout.getTabAt(i));
+            });
+        };
+
+        if (proj_login != null)
+            TasksApiController.getInstance().getTasks(proj_name, proj_login, callback);
+        else
+            TasksApiController.getInstance().getAllTasks(callback);
 
 
     }
@@ -97,5 +109,13 @@ public class TasksActivity extends AppCompatActivity {
         new TabLayoutMediator(binding.tabLayout, binding.viewPage,
                 (tab, position) -> tab.setText(Task.Status.mas[position])).attach();
         binding.progressBar3.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        binding = null;
+        proj_login = null;
+        proj_name = null;
     }
 }

@@ -44,12 +44,22 @@ private FragmentHomeBinding binding;
         View root = binding.getRoot();
 
         binding.logout.setOnClickListener(view -> LoginController.getInstance().logout(getContext()));
-
+        binding.textLogin.setText(LoginController.getInstance().getUsername());
         return root;
     }
 
+    public void refresh(){
+        binding.textLogin.setText(LoginController.getInstance().getUsername());
+    }
 
-@Override
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        refresh();
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;

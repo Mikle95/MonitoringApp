@@ -97,22 +97,19 @@ public class TaskAdapter  extends ArrayAdapter<Task> {
                     return;
                 final String status = item.status;
                 item.status = Task.Status.mas[i];
-                item.update(new IResponseCallback() {
-                    @Override
-                    public void execute(String response, boolean isSuccessful) {
-                        if (isSuccessful)
-                            return;
-                        item.status = status;
-                        new Handler(Looper.getMainLooper()).post(new Runnable() {
-                            @Override
-                            public void run() {
-                                notifyDataSetChanged();
-                                Toast.makeText(getContext(), response, Toast.LENGTH_SHORT).show();
+                item.update((response, isSuccessful) -> {
+                    if (isSuccessful)
+                        return;
+                    item.status = status;
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyDataSetChanged();
+                            Toast.makeText(getContext(), response, Toast.LENGTH_SHORT).show();
 //                                binding.taskStatus.setSelection(
 //                                        Arrays.asList(Task.Status.mas).indexOf(status));
-                            }
-                        });
-                    }
+                        }
+                    });
                 });
             }
 
@@ -131,43 +128,36 @@ public class TaskAdapter  extends ArrayAdapter<Task> {
         }));
         binding.taskEndTime.setOnLongClickListener(changeTime((response, isSuccessful) -> {
             item.end_time = response;
-            item.update();
+            item.update((response1, isSuccessful1) -> {
+                ((TasksActivity)getContext()).refresh();
+            });
         }));
         binding.taskStartTime.setOnClickListener(view -> binding.getRoot().callOnClick());
         binding.taskEndTime.setOnClickListener(view -> binding.getRoot().callOnClick());
     }
 
     public View.OnLongClickListener changeTime(IResponseCallback action){
-        return new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                Calendar cal = Calendar.getInstance();
+        return view -> {
+            Calendar cal = Calendar.getInstance();
 //                cal.setTimeZone(TimeZone.getDefault());
 
-                TimePickerDialog.OnTimeSetListener timeSetListener = new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker timePicker, int i, int i1) {
-                        cal.set(Calendar.HOUR, i);
-                        cal.set(Calendar.MINUTE, i1);
-                        action.execute(Task.getTimeString(cal.getTime()), true);
-                    }
-                };
+            TimePickerDialog.OnTimeSetListener timeSetListener = (timePicker, i, i1) -> {
+                cal.set(Calendar.HOUR, i);
+                cal.set(Calendar.MINUTE, i1);
+                action.execute(Task.getTimeString(cal.getTime()), true);
+            };
 
-                DatePickerDialog.OnDateSetListener listener = new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
-                        cal.set(Calendar.YEAR, i);
-                        cal.set(Calendar.MONTH, i1);
-                        cal.set(Calendar.DAY_OF_MONTH, i2);
-                        new TimePickerDialog(getContext(), timeSetListener, cal.get(Calendar.HOUR),
-                                cal.get(Calendar.MINUTE), true).show();
-                    }
-                };
+            DatePickerDialog.OnDateSetListener listener = (datePicker, i, i1, i2) -> {
+                cal.set(Calendar.YEAR, i);
+                cal.set(Calendar.MONTH, i1);
+                cal.set(Calendar.DAY_OF_MONTH, i2);
+                new TimePickerDialog(getContext(), timeSetListener, cal.get(Calendar.HOUR),
+                        cal.get(Calendar.MINUTE), true).show();
+            };
 
-                new DatePickerDialog(getContext(), listener, cal.get(Calendar.YEAR),
-                        cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).show();
-                return false;
-            }
+            new DatePickerDialog(getContext(), listener, cal.get(Calendar.YEAR),
+                    cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).show();
+            return false;
         };
     }
 
@@ -176,7 +166,7 @@ public class TaskAdapter  extends ArrayAdapter<Task> {
             if (!item.creator_login.equals(LoginController.getInstance().getUsername())){
                 Toast.makeText(getContext(), res.getString(R.string.alert_change_worker), Toast.LENGTH_SHORT).show();
             }
-            openDialogEditText(res.getString(R.string.change_task_worker), item.worker_login, (response, isSuccessful) -> {
+            openDialogEditText(getContext(), res.getString(R.string.change_task_worker), item.worker_login, (response, isSuccessful) -> {
                 item.worker_login = response;
                 item.update();
             });
@@ -189,7 +179,7 @@ public class TaskAdapter  extends ArrayAdapter<Task> {
                 Toast.makeText(getContext(), res.getString(R.string.alert_change_name), Toast.LENGTH_SHORT).show();
                 return false;
             }
-            openDialogEditText(res.getString(R.string.change_task_name), item.task_name, (response, isSuccessful) -> {
+            openDialogEditText(getContext(), res.getString(R.string.change_task_name), item.task_name, (response, isSuccessful) -> {
                 item.task_name = response;
                 item.update();
             });
@@ -199,7 +189,7 @@ public class TaskAdapter  extends ArrayAdapter<Task> {
 
     // Редактирование описания
     public View.OnClickListener descriptionDialog(Task item){
-        return view -> openDialogEditText(res.getString(R.string.change_description),
+        return view -> openDialogEditText(getContext(), res.getString(R.string.change_description),
                 item.task_description, (response, isSuccessful) -> {
             item.task_description = response;
             item.update();
@@ -229,12 +219,12 @@ public class TaskAdapter  extends ArrayAdapter<Task> {
         alertDialog.show();
     }
 
-    public void openDialogEditText(String title, String text, IResponseCallback action){
+    public static void openDialogEditText(Context ctxt, String title, String text, IResponseCallback action){
 
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(ctxt);
         alertDialog.setTitle(title);
 
-        final EditText input = new EditText(getContext());
+        final EditText input = new EditText(ctxt);
         input.setText(text);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -242,7 +232,7 @@ public class TaskAdapter  extends ArrayAdapter<Task> {
         input.setLayoutParams(lp);
         alertDialog.setView(input);
 
-        alertDialog.setPositiveButton(res.getString(R.string.accept),
+        alertDialog.setPositiveButton(ctxt.getResources().getString(R.string.accept),
                 (dialogInterface, i) -> action.execute(input.getText().toString(), true));
         alertDialog.show();
 

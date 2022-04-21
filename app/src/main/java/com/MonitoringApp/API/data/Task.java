@@ -52,7 +52,7 @@ public class Task {
 
     public static String getTimeString(Date date){
         String str =  df.format(date);
-        System.out.println(str);
+//        System.out.println(str);
         return str;
     }
 

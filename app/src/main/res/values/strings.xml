@@ -27,4 +27,6 @@
     <string name="alert_delete">Удалять может только создатель</string>
     <string name="alert_change_name">Менять название может только создатель</string>
     <string name="alert_change_worker">Назначать ответственного может только создатель</string>
+    <string name="my_tasks">Мои задания</string>
+    <string name="input_pname">Введите название проекта</string>
 </resources>

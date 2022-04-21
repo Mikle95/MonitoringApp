@@ -1,12 +1,16 @@
 package com.MonitoringApp.ui.taskmanager.Project;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
@@ -16,6 +20,7 @@ import com.MonitoringApp.API.TasksApiController;
 import com.MonitoringApp.API.data.Project;
 import com.MonitoringApp.R;
 import com.MonitoringApp.databinding.ProjectViewBinding;
+import com.MonitoringApp.ui.taskmanager.Task.TasksActivity;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,6 +45,20 @@ public class ProjectViewFragment extends Fragment {
             public void onClick(View view) {
                 refresh();
             }
+        });
+
+        binding.allTasks.setOnClickListener(view -> {
+            TasksApiController.getInstance().getAllTasks((response, isSuccessful) ->
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                if (isSuccessful){
+                    Intent intent = new Intent(getContext(), TasksActivity.class);
+                    intent.putExtra("tasks", response);
+                    intent.putExtra("pname", getResources().getString(R.string.my_tasks));
+                    startActivity(intent);
+                }
+                else
+                    Toast.makeText(getContext(), response, Toast.LENGTH_SHORT).show();
+            }));
         });
 
         refresh();
