@@ -1,8 +1,13 @@
 package com.MonitoringApp.API;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import androidx.annotation.NonNull;
 
 import java.io.IOException;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import okhttp3.Call;
@@ -21,6 +26,25 @@ public class MainApiController {
 
 
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+
+
+    private static void checkAndSendRequest(String url, Map<String, String> params, RequestBody body,
+                                    IResponseCallback callback){
+        LoginController lc = LoginController.getInstance();
+        if (lc.endTime != null && lc.endTime.getTime() < new Date().getTime()){
+            lc.check_login((response, isSuccessful) -> {
+                if (isSuccessful){
+                    Map<String, String> params1 = new HashMap<>();
+                    params1.put(ApiParams.token, lc.getToken());
+                    sendRequest(url, params1, body, getCallback(callback));
+                }
+                else
+                    callback.execute(response, false);
+            });
+        }
+        else
+            sendRequest(url, params, body, getCallback(callback));
+    }
 
 
     private static void sendRequest(String url, Map<String, String> params, RequestBody body,
@@ -65,26 +89,18 @@ public class MainApiController {
         new Thread(() -> client.newCall(request).enqueue(onResponse)).start();
     }
 
-    private static void sendGetRequest(String url, Map<String, String> params, Callback callback){
-        sendRequest(url, params, null, callback);
-    }
-
-    private static void sendPostRequest(String url, RequestBody body, Callback callback){
-        sendRequest(url, null, body, callback);
-    }
-
 
     public static void sendGetRequest(String url, Map<String, String> params, IResponseCallback callback){
-        sendRequest(url, params, null, getCallback(callback));
+        checkAndSendRequest(url, params, null, callback);
     }
 
     public static void sendPostRequest(String url, RequestBody body, IResponseCallback callback){
-        sendRequest(url, null, body, getCallback(callback));
+        checkAndSendRequest(url, null, body, callback);
     }
 
     public static void sendRequest(String url, Map<String, String> params, RequestBody body,
                                    IResponseCallback callback){
-        sendRequest(url, params, body, getCallback(callback));
+        checkAndSendRequest(url, params, body, callback);
     }
 
 

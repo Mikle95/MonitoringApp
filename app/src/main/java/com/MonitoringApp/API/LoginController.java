@@ -8,12 +8,15 @@ import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 
+import com.MonitoringApp.API.data.Task;
 import com.MonitoringApp.ui.login.LoginActivity;
 
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,14 +29,16 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class LoginController {
-    private static volatile LoginController instance;
-    private SharedPreferences prefs;
-    // TODO Поменять ключи
     private static final String Login_KEY = "login_token";
     private static final String REFRESH_TOKEN_KEY = "user_refresh";
 
+    private static volatile LoginController instance;
+    private SharedPreferences prefs;
+
     private volatile String token = "";
     private volatile String login = "";
+    public volatile Timestamp endTime = null;
+
     public String getUsername() {return login;}
     public String getToken() {return token;}
 
@@ -85,6 +90,7 @@ public class LoginController {
             try {
                 JSONObject jObject = new JSONObject(response);
                 String token = (String) jObject.get("token");
+                String endTime = (String) jObject.get("token_endtime");
                 String rf_token = (String) jObject.get("refresh_token");
 
                 SharedPreferences.Editor editor = prefs.edit();
@@ -92,6 +98,8 @@ public class LoginController {
                 editor.putString(Login_KEY, LoginController.this.login);
                 editor.putString(REFRESH_TOKEN_KEY, rf_token);
                 editor.apply();
+
+                this.endTime = new Timestamp(Task.df.parse(endTime).getTime());
             } catch (Exception e) {
                 e.printStackTrace();
                 response = e.getMessage();

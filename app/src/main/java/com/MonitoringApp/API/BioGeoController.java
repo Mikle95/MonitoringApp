@@ -3,7 +3,6 @@ package com.MonitoringApp.API;
 import static com.MonitoringApp.API.MainApiController.JSON;
 
 import com.MonitoringApp.API.data.GeoLocation;
-import com.MonitoringApp.API.data.Task;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +11,7 @@ import okhttp3.RequestBody;
 
 public class BioGeoController {
     public static void sendPhoto(byte[] photo, IResponseCallback callback){
-        callback.execute("", true);
+        callback.execute("Этой функции еще нет", true);
     }
 
     public static void sendGeo(GeoLocation location, IResponseCallback callback){
