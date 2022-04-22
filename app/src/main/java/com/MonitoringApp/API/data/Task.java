@@ -37,7 +37,7 @@ public class Task {
     public String worker_login;
 
     @SuppressLint("SimpleDateFormat")
-    private static final DateFormat df =
+    public static final DateFormat df =
             new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
     @SuppressLint("SimpleDateFormat")
     public static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd\nHH:mm");
@@ -102,7 +102,7 @@ public class Task {
             Map<String, String> map = new HashMap<>();
             map.put(ApiParams.token, LoginController.getInstance().getToken());
             MainApiController.sendRequest(ApiPaths.update_task, map, RequestBody.create(json, JSON), callback);
-        }catch (Exception e){e.printStackTrace();}
+        }catch (Exception e){e.printStackTrace(); callback.execute(e.getMessage(), false);}
     }
 
     public void delete(IResponseCallback callback){
@@ -111,7 +111,7 @@ public class Task {
             Map<String, String> map = new HashMap<>();
             map.put(ApiParams.token, LoginController.getInstance().getToken());
             MainApiController.sendRequest(ApiPaths.delete_task, map, RequestBody.create(json, JSON), callback);
-        }catch (Exception e){e.printStackTrace();}
+        }catch (Exception e){e.printStackTrace(); callback.execute(e.getMessage(), false);}
     }
 
     public void delete(){

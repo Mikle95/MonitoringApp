@@ -92,7 +92,11 @@ public class LoginController {
                 editor.putString(Login_KEY, LoginController.this.login);
                 editor.putString(REFRESH_TOKEN_KEY, rf_token);
                 editor.apply();
-            } catch (Exception e) {e.printStackTrace(); isSuccessful = false;}
+            } catch (Exception e) {
+                e.printStackTrace();
+                response = e.getMessage();
+                isSuccessful = false;
+            }
 
             if (callback != null)
                 callback.execute(response, isSuccessful);

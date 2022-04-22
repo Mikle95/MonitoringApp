@@ -11,24 +11,23 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import com.MonitoringApp.R;
+import com.MonitoringApp.databinding.FragmentListBinding;
 import com.MonitoringApp.databinding.FragmentNotificationsBinding;
 
 public class NotificationsFragment extends Fragment {
 
-private FragmentNotificationsBinding binding;
+private FragmentListBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
             ViewGroup container, Bundle savedInstanceState) {
 
-    binding = FragmentNotificationsBinding.inflate(inflater, container, false);
-    View root = binding.getRoot();
+        binding = FragmentListBinding.inflate(inflater, container, false);
 
-        final TextView textView = binding.textNotifications;
 
-        return root;
+        return binding.getRoot();
     }
 
-@Override
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
