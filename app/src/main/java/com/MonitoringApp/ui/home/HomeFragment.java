@@ -78,15 +78,12 @@ public class HomeFragment extends Fragment {
         binding.confirmGeo.setOnClickListener(view -> askForGeo());
 
         binding.startStop.setOnClickListener(view -> {
-            if (jobActivity != null)
                 confirmIdentity(((response, isSuccessful) -> {
-                    if (jobActivity.end_time != null)
+                    if (jobActivity == null || jobActivity.end_time != null)
                         JobActivityController.startActivity(((response1, isSuccessful1) -> refresh()));
                     else
                         JobActivityController.endActivity(((response1, isSuccessful1) -> refresh()));
                 }));
-            else
-                refresh();
         });
 
         timeHandler = new Handler();
@@ -129,12 +126,14 @@ public class HomeFragment extends Fragment {
             public void run() {
                 if (!isSuccessful){
                     Toast.makeText(getContext(), response, Toast.LENGTH_SHORT).show();
+                    prepareJobActivity(true);
                     return;
                 }
                 try{
                     JobActivity[] mas = ApiJsonFormats.parseGson(response, JobActivity[].class);
-                    jobActivity = mas[mas.length - 1];
-                    prepareJobActivity(jobActivity.end_time != null);
+                    if (mas.length > 0)
+                        jobActivity = mas[mas.length - 1];
+                    prepareJobActivity(jobActivity == null || jobActivity.end_time != null);
                 }catch (Exception e) {
                     Toast.makeText(getContext(), response, Toast.LENGTH_SHORT).show();
                 }
