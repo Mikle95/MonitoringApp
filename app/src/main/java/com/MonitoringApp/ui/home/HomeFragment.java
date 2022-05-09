@@ -157,9 +157,10 @@ public class HomeFragment extends Fragment {
         confirmIdentity(new IResponseCallback() {
             @Override
             public void execute(String response, boolean isSuccessful) {
-                Location location = locationManager.getLocation();
+                Location location = locationManager.getLocation(getActivity());
                 if (location == null){
-                    Toast.makeText(getContext(), "", Toast.LENGTH_SHORT);
+                    Toast.makeText(getContext(), "Не могу получить" +
+                            " геолокацию", Toast.LENGTH_SHORT);
                     return;
                 }
                 GeoLocation geo = new GeoLocation();
