@@ -13,6 +13,10 @@ public class ApiJsonFormats {
     public static final String task = "{" +   "\"project_name\": \"%s\", " +
                                               "\"project_creator_login\": \"%s\"}";
 
+    public static final String photo = "{\"login\":\"%s\",\"photo\":\"%s\"}";
+    public static final String firebase_token = "{\"token\":\"%s\"}";
+
+
     public static final Gson g = new GsonBuilder()
             .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
             .serializeNulls()

@@ -152,11 +152,13 @@ public class HomeFragment extends Fragment {
         binding.confirmGeo.setVisibility(flag ? View.INVISIBLE : View.VISIBLE);
     }
 
-    //TODO send geo
+
     private void askForGeo(){
         confirmIdentity(new IResponseCallback() {
             @Override
             public void execute(String response, boolean isSuccessful) {
+                //TODO confirmation response
+
                 Location location = locationManager.getLocation(getActivity());
                 if (location == null){
                     Toast.makeText(getContext(), "Не могу получить" +

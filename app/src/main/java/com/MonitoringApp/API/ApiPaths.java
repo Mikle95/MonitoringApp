@@ -21,4 +21,8 @@ public class ApiPaths {
     public static final String end_activity = host + "api/v1/activity/end";
 
     public static final String send_geo = host + "api/v1/geolocation/send";
+
+    public static final String send_firebase_token = host + "api/v1/firebase/send";
+
+    public static final String check_photo = host + "api/v1/photo/check";
 }
