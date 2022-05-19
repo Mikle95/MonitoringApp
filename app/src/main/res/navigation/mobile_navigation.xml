@@ -13,9 +13,9 @@
 
     <fragment
         android:id="@+id/navigation_dashboard"
-        android:name="com.MonitoringApp.ui.taskmanager.TaskmanagerFragment"
+        android:name="com.MonitoringApp.ui.taskmanager.Project.ProjectViewFragment"
         android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/project_view" />
 
     <fragment
         android:id="@+id/navigation_notifications"
