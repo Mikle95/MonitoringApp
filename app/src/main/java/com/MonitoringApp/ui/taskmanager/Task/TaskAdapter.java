@@ -203,7 +203,7 @@ public class TaskAdapter  extends ArrayAdapter<Task> {
         }
         AlertDialog.Builder dialog = new
                 AlertDialog.Builder(getContext());
-        dialog.setMessage(res.getString(R.string.delete) + item.task_name + "?");
+        dialog.setMessage(res.getString(R.string.delete) + " " + item.task_name + "?");
         dialog.setPositiveButton("Yes",
                 (dialog12, which) -> item.delete(
                         (response, isSuccessful) -> new Handler(Looper.getMainLooper()).post(() -> {
