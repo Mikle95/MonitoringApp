@@ -38,4 +38,6 @@
     <string name="choose_identify_way">Выберите способ подтверждения личности</string>
     <string name="biometry">Биометрия</string>
     <string name="photo">Фото</string>
+
+    <string name="default_notification_channel_id">Основной канал</string>
 </resources>

@@ -50,6 +50,12 @@ public class MainActivity extends AppCompatActivity {
                             Manifest.permission.ACCESS_COARSE_LOCATION,
                     }, 1);
 
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NOTIFICATION_POLICY) !=
+                PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_NOTIFICATION_POLICY}, 10);
+        }
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) !=
                 PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
