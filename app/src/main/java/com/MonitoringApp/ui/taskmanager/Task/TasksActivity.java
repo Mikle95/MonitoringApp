@@ -107,7 +107,7 @@ public class TasksActivity extends AppCompatActivity {
 
         binding.viewPage.setAdapter(adapter);
         new TabLayoutMediator(binding.tabLayout, binding.viewPage,
-                (tab, position) -> tab.setText(Task.Status.mas[position])).attach();
+                (tab, position) -> tab.setText(Task.Status.masRU[position])).attach();
         binding.progressBar3.setVisibility(View.INVISIBLE);
     }
 

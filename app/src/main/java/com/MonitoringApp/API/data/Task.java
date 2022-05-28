@@ -89,6 +89,7 @@ public class Task {
 
     public static class Status{
         public static final String[] mas = new String[] {"NEW", "PROGRESS", "FINISHED", "APPROVING"};
+        public static final String[] masRU = new String[] {"Новые", "В процессе", "Завершены", "На проверке"};
         public static final String new_task = mas[0];
         public static final String in_progress = mas[1];
         public static final String ended = mas[2];
