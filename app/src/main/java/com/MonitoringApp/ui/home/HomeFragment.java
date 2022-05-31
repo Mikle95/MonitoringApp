@@ -70,7 +70,7 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
             ViewGroup container, Bundle savedInstanceState) {
 
-        locationManager = new MyLocationManager(getContext());
+        locationManager = new MyLocationManager(getActivity());
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
